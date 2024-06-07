@@ -1,0 +1,31 @@
+set AWS_ACCESS_KEY_ID=
+set AWS_SECRET_ACCESS_KEY=
+set AWS_SESSION_TOKEN=
+
+set BUCKET_NAME=cmtr-91940bed-s3-rfuv-bucket-537005
+set FILE_NAME=accidentally_deleted_file.csv
+
+rem task commands
+rem list object versions
+aws s3api list-object-versions --bucket %BUCKET_NAME% --prefix %FILE_NAME%
+rem remove the delete marker
+set DELETE_MARKER_VERSION_ID=vzkmJj10KQE6znGzf1JeY0fO7sfqelSO
+aws s3api delete-object --bucket %BUCKET_NAME% --key %FILE_NAME% --version-id %DELETE_MARKER_VERSION_ID%
+
+
+rem misc commands
+rem create bucket
+aws s3api create-bucket --bucket %BUCKET_NAME% --create-bucket-configuration LocationConstraint=%AWS_DEFAULT_REGION%
+
+rem list buckets
+aws s3api list-buckets --query "Buckets[].Name"
+
+rem upload file
+aws s3 cp %FILE_NAME% s3://%BUCKET_NAME%/
+
+rem list files in the bucket
+aws s3 ls s3://%BUCKET_NAME%
+
+rem delete file in the bucket
+aws s3 rm s3://%BUCKET_NAME%/%FILE_NAME%
+
