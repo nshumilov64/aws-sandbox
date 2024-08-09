@@ -36,7 +36,11 @@
     "resource_type": "api_gateway",
     "deploy_stage": "api",
     "dependencies": [],
-    "resources": {},
+    "resources": {
+      "/hello": {
+        "enable_cors": false
+      }
+    },
     "minimum_compression_size": 0
   }
 }
