@@ -31,5 +31,12 @@
       "lambda-basic-execution"
     ],
     "resource_type": "iam_role"
+  },
+  "task3_api": {
+    "resource_type": "api_gateway",
+    "deploy_stage": "api",
+    "dependencies": [],
+    "resources": {},
+    "minimum_compression_size": 0
   }
 }
