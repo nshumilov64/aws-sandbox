@@ -2,25 +2,52 @@ package com.task02;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
+import com.google.gson.Gson;
 import com.syndicate.deployment.annotations.lambda.LambdaHandler;
+import com.syndicate.deployment.annotations.lambda.LambdaUrlConfig;
 import com.syndicate.deployment.model.RetentionSetting;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @LambdaHandler(lambdaName = "hello_world",
-	roleName = "hello_world-role",
-	isPublishVersion = true,
-	aliasName = "${lambdas_alias_name}",
-	logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
+        roleName = "hello_world-role",
+        isPublishVersion = true,
+        logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
 )
-public class HelloWorld implements RequestHandler<Object, Map<String, Object>> {
+@LambdaUrlConfig
+public class HelloWorld implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
+    private static final Gson gson = new Gson();
 
-	public Map<String, Object> handleRequest(Object request, Context context) {
-		System.out.println("Hello from lambda");
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		resultMap.put("statusCode", 200);
-		resultMap.put("body", "Hello from Lambda");
-		return resultMap;
-	}
+    @Override
+    public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
+        String method = event.getRequestContext().getHttp().getMethod();
+        String path = event.getRequestContext().getHttp().getPath();
+        boolean requestValid = "GET".equals(method) && "/hello".equals(path);
+        String message = requestValid ? "Hello from Lambda" :
+                String.format("Bad request syntax or unsupported method. Request path: %s. HTTP method: %s",
+                        path, method);
+        int statusCode = requestValid ? 200 : 400;
+        APIGatewayV2HTTPResponse response = new APIGatewayV2HTTPResponse();
+        response.setStatusCode(statusCode);
+        response.setBody(gson.toJson(new Response(statusCode, message)));
+        return response;
+    }
+
+    public static class Response {
+        private final int statusCode;
+        private final String message;
+
+        public Response(int statusCode, String message) {
+            this.statusCode = statusCode;
+            this.message = message;
+        }
+
+        public int getStatusCode() {
+            return statusCode;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+    }
 }
