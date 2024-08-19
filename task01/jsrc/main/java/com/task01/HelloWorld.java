@@ -9,16 +9,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 @LambdaHandler(lambdaName = "hello_world",
-	roleName = "hello_world-role",
-	isPublishVersion = true,
-	aliasName = "${lambdas_alias_name}",
-	logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
+        roleName = "hello_world-role",
+        isPublishVersion = true,
+        aliasName = "${lambdas_alias_name}",
+        logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
 )
 public class HelloWorld implements RequestHandler<Object, Map<String, Object>> {
-	public Map<String, Object> handleRequest(Object request, Context context) {
-		Map<String, Object> resultMap = new HashMap<>();
-		resultMap.put("statusCode", 200);
-		resultMap.put("message", "Hello from Lambda");
-		return resultMap;
-	}
+    public Map<String, Object> handleRequest(Object request, Context context) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("statusCode", 200);
+        resultMap.put("message", "Hello from Lambda");
+        return resultMap;
+    }
 }

@@ -10,21 +10,21 @@ import com.syndicate.deployment.model.ResourceType;
 import com.syndicate.deployment.model.RetentionSetting;
 
 @LambdaHandler(lambdaName = "sqs_handler",
-	roleName = "sqs_handler-role",
-	isPublishVersion = true,
-	logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
+        roleName = "sqs_handler-role",
+        isPublishVersion = true,
+        logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
 )
 @DependsOn(
-		name = "async_queue",
-		resourceType = ResourceType.SQS_QUEUE
+        name = "async_queue",
+        resourceType = ResourceType.SQS_QUEUE
 )
 @SqsTriggerEventSource(
         targetQueue = "async_queue",
-		batchSize = 10	// Default?
+        batchSize = 10    // Default?
 )
 public class SqsHandler implements RequestHandler<SQSEvent, String> {
-	public String handleRequest(SQSEvent event, Context context) {
-		event.getRecords().forEach(message -> context.getLogger().log(message.getBody()));
-		return "OK";
-	}
+    public String handleRequest(SQSEvent event, Context context) {
+        event.getRecords().forEach(message -> context.getLogger().log(message.getBody()));
+        return "OK";
+    }
 }

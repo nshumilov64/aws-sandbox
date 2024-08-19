@@ -11,22 +11,22 @@ import com.syndicate.deployment.model.ResourceType;
 import com.syndicate.deployment.model.RetentionSetting;
 
 @LambdaHandler(lambdaName = "sns_handler",
-	roleName = "sns_handler-role",
-	isPublishVersion = true,
-	logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
+        roleName = "sns_handler-role",
+        isPublishVersion = true,
+        logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
 )
 @DependsOn(
-		name = "lambda_topic",
-		resourceType = ResourceType.SNS_TOPIC
+        name = "lambda_topic",
+        resourceType = ResourceType.SNS_TOPIC
 )
 @SnsEventSource(
-		targetTopic = "lambda_topic",
-		regionScope = RegionScope.DEFAULT
+        targetTopic = "lambda_topic",
+        regionScope = RegionScope.DEFAULT
 )
 public class SnsHandler implements RequestHandler<SNSEvent, String> {
-	@Override
-	public String handleRequest(SNSEvent event, Context context) {
+    @Override
+    public String handleRequest(SNSEvent event, Context context) {
         event.getRecords().forEach(record -> context.getLogger().log(record.getSNS().getMessage()));
-		return "OK";
-	}
+        return "OK";
+    }
 }
