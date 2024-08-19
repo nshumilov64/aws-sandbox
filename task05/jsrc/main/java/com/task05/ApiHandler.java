@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.syndicate.deployment.annotations.environment.EnvironmentVariable;
 import com.syndicate.deployment.annotations.environment.EnvironmentVariables;
 import com.syndicate.deployment.annotations.lambda.LambdaHandler;
-import com.syndicate.deployment.model.RetentionSetting;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,7 +40,6 @@ public class ApiHandler implements RequestHandler<ApiHandler.Request, APIGateway
         String now = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
         context.getLogger().log("timestamp: " + now);
         try {
-            context.getLogger().log("request: " + objectMapper.writeValueAsString(request));
             // Creating and storing the Event
             Event event = new Event(UUID.randomUUID().toString(), request.getPrincipalId(), now, request.getContent());
             AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
