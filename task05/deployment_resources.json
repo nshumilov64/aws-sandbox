@@ -10,6 +10,7 @@
             "dynamodb:GetItem",
             "dynamodb:Query",
             "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
             "dynamodb:Batch*",
             "dynamodb:DeleteItem",
             "ssm:PutParameter",
