@@ -18,7 +18,9 @@
             "sqs:GetQueueAttributes",
             "sqs:GetQueueUrl",
             "sqs:ReceiveMessage",
-            "sqs:DeleteMessage"
+            "sqs:DeleteMessage",
+            "sns:GetTopicAttributes",
+            "sns:Subscribe"
           ],
           "Effect": "Allow",
           "Resource": "*"
