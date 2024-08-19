@@ -1,0 +1,1 @@
+syndicate generate project --name task04
