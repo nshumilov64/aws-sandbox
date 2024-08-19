@@ -27,11 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
 
-@LambdaHandler(lambdaName = "api_handler",
-        roleName = "api_handler-role",
-        isPublishVersion = true,
-        logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
-)
+@LambdaHandler(lambdaName = "api_handler", roleName = "api_handler-role")
 @EnvironmentVariables(value = {
         @EnvironmentVariable(key = "region", value = "${region}"),
         @EnvironmentVariable(key = "table", value = "${target_table}")})

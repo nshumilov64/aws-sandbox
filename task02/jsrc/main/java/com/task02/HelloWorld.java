@@ -7,13 +7,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.google.gson.Gson;
 import com.syndicate.deployment.annotations.lambda.LambdaHandler;
 import com.syndicate.deployment.annotations.lambda.LambdaUrlConfig;
-import com.syndicate.deployment.model.RetentionSetting;
 
-@LambdaHandler(lambdaName = "hello_world",
-        roleName = "hello_world-role",
-        isPublishVersion = true,
-        logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
-)
+@LambdaHandler(lambdaName = "hello_world", roleName = "hello_world-role")
 @LambdaUrlConfig
 public class HelloWorld implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
     private static final Gson gson = new Gson();
