@@ -55,5 +55,10 @@
       "lambda-basic-execution"
     ],
     "resource_type": "iam_role"
+  },
+  "lambda_topic": {
+    "resource_type": "sns_topic",
+    "region": "eu-central-1",
+    "event_sources": []
   }
 }
