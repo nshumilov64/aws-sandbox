@@ -16,6 +16,8 @@ import com.syndicate.deployment.annotations.lambda.LambdaHandler;
 import com.syndicate.deployment.annotations.resources.DependsOn;
 import com.syndicate.deployment.model.ResourceType;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -37,10 +39,17 @@ public class AuditProducer implements RequestHandler<DynamodbEvent, String> {
     public static final String MODIFY = "MODIFY";
 
     public String handleRequest(DynamodbEvent event, Context context) {
-        List<Item> items = event.getRecords().stream()
-                .map(this::createItem)
-                .collect(Collectors.toList());
-        saveItems(items);
+        context.getLogger().log("Region:" + System.getenv("region"));
+        context.getLogger().log("Table:" + System.getenv("table"));
+        context.getLogger().log("Received event: " + event);
+        try {
+            List<Item> items = event.getRecords().stream()
+                    .map(this::createItem)
+                    .collect(Collectors.toList());
+            saveItems(items);
+        } catch (Exception e) {
+            context.getLogger().log(exceptionToString(e));
+        }
         return "OK";
     }
 
@@ -76,5 +85,14 @@ public class AuditProducer implements RequestHandler<DynamodbEvent, String> {
                 .map(e -> new WriteRequest().withPutRequest(new PutRequest(ItemUtils.toAttributeValues(e))))
                 .collect(Collectors.toList());
         dynamoDB.batchWriteItem(Map.of(System.getenv("table"), requests));
+    }
+
+    private String exceptionToString(Exception e) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        pw.println("Exception occurred: " + e.getMessage());
+        pw.println("Stack trace:");
+        e.printStackTrace(pw);
+        return sw.toString();
     }
 }
