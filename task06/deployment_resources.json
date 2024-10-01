@@ -16,7 +16,9 @@
             "ssm:GetParameter",
             "kms:Decrypt",
             "dynamodb:ListStreams",
-            "dynamodb:DescribeStream"
+            "dynamodb:DescribeStream",
+            "dynamodb:GetShardIterator",
+            "dynamodb:GetRecords"
           ],
           "Effect": "Allow",
           "Resource": "*"

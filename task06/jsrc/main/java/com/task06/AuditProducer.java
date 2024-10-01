@@ -39,8 +39,8 @@ public class AuditProducer implements RequestHandler<DynamodbEvent, String> {
     public static final String MODIFY = "MODIFY";
 
     public String handleRequest(DynamodbEvent event, Context context) {
-        context.getLogger().log("Region:" + System.getenv("region"));
-        context.getLogger().log("Table:" + System.getenv("table"));
+        context.getLogger().log("Region: " + System.getenv("region"));
+        context.getLogger().log("Table: " + System.getenv("table"));
         context.getLogger().log("Received event: " + event);
         try {
             List<Item> items = event.getRecords().stream()
@@ -66,7 +66,8 @@ public class AuditProducer implements RequestHandler<DynamodbEvent, String> {
                         .with("newValue", Map.of("key", key, "value", newValue));
             case MODIFY:
                 Integer oldValue = Integer.valueOf(record.getDynamodb().getOldImage().get("value").getN());
-                return new Item().with("id", UUID.randomUUID().toString())
+                return new Item()
+                        .with("id", UUID.randomUUID().toString())
                         .with("itemKey", key)
                         .with("modificationTime", modificationTime)
                         .with("updatedAttribute", "value")
