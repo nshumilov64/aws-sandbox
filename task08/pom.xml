@@ -31,6 +31,15 @@
             <artifactId>deployment-configuration-annotations</artifactId>
             <version>${syndicate.java.plugin.version}</version>
         </dependency>
+        <!-- Miscellaneous dependencies -->
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>open-meteo-client</artifactId>
+            <version>0.1</version>
+            <scope>system</scope>
+            <!-- Taken from open-meteo-client module output -->
+            <systemPath>${basedir}/layer/open-meteo-client-0.1.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>

@@ -3,24 +3,31 @@ package com.task08;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.syndicate.deployment.annotations.lambda.LambdaHandler;
-import com.syndicate.deployment.model.RetentionSetting;
+import com.syndicate.deployment.annotations.lambda.LambdaLayer;
+import org.example.OpenMeteoClient;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
-@LambdaHandler(lambdaName = "api_handler",
-	roleName = "api_handler-role",
-	isPublishVersion = true,
-	aliasName = "${lambdas_alias_name}",
-	logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
-)
-public class ApiHandler implements RequestHandler<Object, Map<String, Object>> {
+@LambdaHandler(lambdaName = "api_handler", roleName = "api_handler-role")
+@LambdaLayer(layerName = "sdk_layer", libraries = {"layer/open-meteo-client-0.1"})
+public class ApiHandler implements RequestHandler<Object, String> {
+    public String handleRequest(Object request, Context context) {
+        try {
+            return OpenMeteoClient.getSampleForecast().body();
+        } catch (IOException | InterruptedException e) {
+            context.getLogger().log(exceptionToString(e));
+            return e.getMessage();
+        }
+    }
 
-	public Map<String, Object> handleRequest(Object request, Context context) {
-		System.out.println("Hello from lambda");
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		resultMap.put("statusCode", 200);
-		resultMap.put("body", "Hello from Lambda");
-		return resultMap;
-	}
+    private String exceptionToString(Exception e) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        pw.println("Exception occurred: " + e.getMessage());
+        pw.println("Stack trace:");
+        e.printStackTrace(pw);
+        return sw.toString();
+    }
 }
