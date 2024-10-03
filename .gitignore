@@ -1,3 +1,6 @@
 # Intellij IDEA
 *.iml
 .idea
+
+# Layer assemblies
+sdk_layer-assembly.zip
