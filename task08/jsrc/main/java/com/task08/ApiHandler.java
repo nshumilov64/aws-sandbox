@@ -11,7 +11,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 @LambdaHandler(lambdaName = "api_handler", roleName = "api_handler-role")
-@LambdaLayer(layerName = "sdk_layer", libraries = {"layer/open-meteo-client-0.1"})
+@LambdaLayer(layerName = "sdk_layer", libraries = {"layer/open-meteo-client-0.1.jar"})
 public class ApiHandler implements RequestHandler<Object, String> {
     public String handleRequest(Object request, Context context) {
         try {
