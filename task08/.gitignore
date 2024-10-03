@@ -1,0 +1,6 @@
+.syndicate
+logs/
+.syndicate-config-*/
+
+# Compile output
+target
