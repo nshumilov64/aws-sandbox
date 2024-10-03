@@ -11,6 +11,7 @@ import com.syndicate.deployment.annotations.lambda.LambdaHandler;
 import com.syndicate.deployment.annotations.lambda.LambdaUrlConfig;
 import com.syndicate.deployment.annotations.resources.DependsOn;
 import com.syndicate.deployment.model.ResourceType;
+import com.syndicate.deployment.model.TracingMode;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,7 +23,7 @@ import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@LambdaHandler(lambdaName = "processor", roleName = "processor-role")
+@LambdaHandler(lambdaName = "processor", roleName = "processor-role", tracingMode = TracingMode.Active)
 @DependsOn(name = "Weather", resourceType = ResourceType.DYNAMODB_TABLE)
 @EnvironmentVariables(value = {
         @EnvironmentVariable(key = "region", value = "${region}"),
