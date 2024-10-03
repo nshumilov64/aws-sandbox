@@ -45,6 +45,7 @@ public class Processor implements RequestHandler<Object, String> {
         try {
             Map<String, Object> forecast = fetchForecast();
             Map<String, Object> dbEntry = createDbEntry(forecast);
+            context.getLogger().log("DB Entry: " + gson.toJson(dbEntry));
             persist(dbEntry);
         } catch (Exception e) {
             context.getLogger().log(exceptionToString(e));
