@@ -17,9 +17,11 @@
   "paths": {
     "/reservations": {
       "get": {
+        "summary": "Get reservations",
+        "description": "Retrieves all reservations in the system.",
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "The request has succeeded. The server has provided a list of reservations as specified in the response body.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
@@ -30,7 +32,36 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Empty"
+                  "type": "object",
+                  "properties": {
+                    "reservations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "tableNumber": {
+                            "type": "integer"
+                          },
+                          "clientName": {
+                            "type": "string"
+                          },
+                          "phoneNumber": {
+                            "type": "string"
+                          },
+                          "date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "slotTimeStart": {
+                            "type": "string"
+                          },
+                          "slotTimeEnd": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -57,9 +88,43 @@
         }
       },
       "post": {
+        "summary": "Create reservation",
+        "description": "Creates a new reservation and returns its id.",
+        "requestBody": {
+          "description": "Reservation to be created",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tableNumber": {
+                    "type": "integer"
+                  },
+                  "clientName": {
+                    "type": "string"
+                  },
+                  "phoneNumber": {
+                    "type": "string"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "slotTimeStart": {
+                    "type": "string"
+                  },
+                  "slotTimeEnd": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "The reservation was successfully created. The server has processed the request, and a new reservation has been successfully added to the system.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
@@ -147,9 +212,11 @@
     },
     "/tables": {
       "get": {
+        "summary": "Get tables",
+        "description": "Retrieves all tables in the system.",
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "The request has succeeded. The server has processed the request and has returned a list of tables as specified in the response body. Each table includes details such as its ID, number, capacity, whether it's in the VIP hall, and optionally, the minimum order required to book it.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
@@ -187,9 +254,40 @@
         }
       },
       "post": {
+        "summary": "Create table",
+        "description": "Creates a new table and returns its id.",
+        "requestBody": {
+          "description": "The table to be created",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "number": {
+                    "type": "integer"
+                  },
+                  "places": {
+                    "type": "integer"
+                  },
+                  "isVip": {
+                    "type": "boolean"
+                  },
+                  "minOrder": {
+                    "type": "integer",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "The request has succeeded. The server has successfully created a new table based on the information provided in the request body. The response contains the ID of the newly created table.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
@@ -277,9 +375,30 @@
     },
     "/signin": {
       "post": {
+        "summary": "User login",
+        "description": "Logs in the user and returns their id token.",
+        "requestBody": {
+          "description": "User credentials",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "The request has succeeded. The server has processed the sign-in request, and the provided credentials (email and password) were valid. The response contains an $access token, which will be used for subsequent authenticated requests.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
@@ -362,6 +481,8 @@
     },
     "/tables/{tableId}": {
       "get": {
+        "summary": "Get table",
+        "description": "Retrieves a specific table.",
         "parameters": [
           {
             "name": "tableId",
@@ -374,7 +495,7 @@
         ],
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "The request has succeeded. The server has processed the request and has returned information about the table specified by {tableId}. The response body contains details such as the table's ID, number, capacity, whether it's in the VIP hall, and optionally, the minimum order required to book it.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
@@ -472,9 +593,36 @@
     },
     "/signup": {
       "post": {
+        "summary": "User registration",
+        "description": "Registers the user in the system.",
+        "requestBody": {
+          "description": "User details and credentials",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "Sign-up process is successful.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
