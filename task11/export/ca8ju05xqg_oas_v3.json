@@ -570,10 +570,8 @@
         "in": "header",
         "x-amazon-apigateway-authtype": "cognito_user_pools",
         "x-amazon-apigateway-authorizer": {
-          "type": "cognito_user_pools",
-          "providerARNs": [
-            "arn:aws:cognito-idp:eu-central-1:905418349556:userpool/eu-central-1_ZEZNXyhWP"
-          ]
+          "x-syndicate-cognito-userpool-names": ["${booking_userpool}"],
+          "type": "cognito_user_pools"
         }
       }
     }
