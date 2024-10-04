@@ -154,6 +154,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
                 .userPoolId(userPoolId)
                 .username(signUp.getEmail())
                 .messageAction(MessageActionType.SUPPRESS)
+                .userAttributes(AttributeType.builder().name("email").value(signUp.getEmail()).build())
                 .build();
         cognito.adminCreateUser(createUserRequest);
         AdminSetUserPasswordRequest setUserPasswordRequest = AdminSetUserPasswordRequest.builder()
