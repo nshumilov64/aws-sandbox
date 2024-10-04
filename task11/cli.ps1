@@ -23,3 +23,13 @@ syndicate generate meta api_gateway_resource_method --api_name task11_api --path
 # DynamoDB
 syndicate generate meta dynamodb --resource_name Tables --hash_key_name id --hash_key_type S
 syndicate generate meta dynamodb --resource_name Reservations --hash_key_name id --hash_key_type S
+# OAS
+syndicate build
+syndicate deploy
+syndicate export --resource_type api_gateway --dsl oas_v3
+syndicate build
+syndicate update -resources task11_api
+syndicate generate meta s3_bucket --resource_name api-ui-hoster --static_website_hosting True
+syndicate generate swagger_ui --name task11_api_ui --path_to_spec export/ca8ju05xqg_oas_v3.json --target_bucket api-ui-hoster
+syndicate build
+syndicate deploy -resources api-ui-hoster -resources task11_api_ui
