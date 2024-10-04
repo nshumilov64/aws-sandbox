@@ -43,7 +43,9 @@ import static com.syndicate.deployment.model.environment.ValueTransformer.USER_P
         @EnvironmentVariable(key = "user_pool_id", value = "${booking_userpool}",
                 valueTransformer = USER_POOL_NAME_TO_USER_POOL_ID),
         @EnvironmentVariable(key = "client_id", value = "${booking_userpool}",
-                valueTransformer = USER_POOL_NAME_TO_CLIENT_ID)
+                valueTransformer = USER_POOL_NAME_TO_CLIENT_ID),
+        @EnvironmentVariable(key = "tables_table", value = "${tables_table}"),
+        @EnvironmentVariable(key = "reservations_table", value = "${reservations_table}"),
 })
 public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private static final Gson gson = new Gson();
@@ -231,9 +233,9 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
             return badRequest(String.format("Table with number %d not found", reservation.getTableNumber()));
         }
         boolean hasOverlapsWithExistingReservations = reservationsTable.scan().items().stream()
-                .filter(e -> e.getTableNumber() == reservation.getTableNumber())
-                .anyMatch(existing -> Validator.overlappingRanges(
-                        existing.getSlotTimeStart(), existing.getSlotTimeEnd(),
+                .filter(existingReservation -> existingReservation.getTableNumber() == reservation.getTableNumber())
+                .anyMatch(existingReservation -> Validator.overlappingRanges(
+                        existingReservation.getSlotTimeStart(), existingReservation.getSlotTimeEnd(),
                         reservation.getSlotTimeStart(), reservation.getSlotTimeEnd(),
                         // Comparing string values should suffice
                         Comparator.comparing(Function.identity())));
