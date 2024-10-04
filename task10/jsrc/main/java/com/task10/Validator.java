@@ -9,9 +9,7 @@ import java.util.regex.Pattern;
 
 public class Validator {
     // Alphanumeric + any of "$%^*-_", 12+ chars. Example: p12345T-048_Gru
-    private static final Pattern SIGNUP_PASSWORD_PATTERN = Pattern.compile("^[a-zA-Z0-9$%^*\\-_]+$");
-    // Alphanumeric + any of "$%^*", 12+ chars. Counter-example: p12345T-048_Gru
-    private static final Pattern SIGNIN_PASSWORD_PATTERN = Pattern.compile("^[a-zA-Z0-9$%^*]+$");
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile("^[a-zA-Z0-9$%^*\\-_]+$");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -19,12 +17,8 @@ public class Validator {
         return email == null || throwsException(() -> new InternetAddress(email).validate());
     }
 
-    public static boolean invalidSignUpPassword(String password) {
-        return password == null || password.length() < 12 || !SIGNUP_PASSWORD_PATTERN.matcher(password).matches();
-    }
-
-    public static boolean invalidSignInPassword(String password) {
-        return password == null || password.length() < 12 || !SIGNIN_PASSWORD_PATTERN.matcher(password).matches();
+    public static boolean invalidPassword(String password) {
+        return password == null || password.length() < 12 || !PASSWORD_PATTERN.matcher(password).matches();
     }
 
     public static boolean invalidDate(String date) {
