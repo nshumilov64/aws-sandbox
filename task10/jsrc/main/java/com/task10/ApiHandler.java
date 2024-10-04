@@ -146,7 +146,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
     }
 
     private APIGatewayProxyResponseEvent processSignUp(SignUp signUp) {
-        if (Validator.invalidEmail(signUp.getEmail()) || Validator.invalidPassword(signUp.getPassword())) {
+        if (Validator.invalidEmail(signUp.getEmail()) || Validator.invalidSignUpPassword(signUp.getPassword())) {
             return badRequest("Invalid email or password");
         }
         String userPoolId = System.getenv("user_pool_id");
@@ -167,7 +167,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
     }
 
     private APIGatewayProxyResponseEvent processSignIn(SignIn signIn) {
-        if (Validator.invalidEmail(signIn.getEmail()) || Validator.invalidPassword(signIn.getPassword())) {
+        if (Validator.invalidEmail(signIn.getEmail()) || Validator.invalidSignInPassword(signIn.getPassword())) {
             return badRequest("Invalid email or password");
         }
         String userPoolId = System.getenv("user_pool_id");
