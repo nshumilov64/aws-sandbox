@@ -34,7 +34,7 @@ import static com.syndicate.deployment.model.environment.ValueTransformer.USER_P
 import static com.syndicate.deployment.model.environment.ValueTransformer.USER_POOL_NAME_TO_USER_POOL_ID;
 
 @LambdaHandler(lambdaName = "api_handler", roleName = "api_handler-role",
-        aliasName = "${lambdas_alias_name}", isPublishVersion = true)
+        aliasName = "learn", isPublishVersion = true)
 @DependsOn(name = "${booking_userpool}", resourceType = ResourceType.COGNITO_USER_POOL)
 @DependsOn(name = "${tables_table}", resourceType = ResourceType.DYNAMODB_TABLE)
 @DependsOn(name = "${reservations_table}", resourceType = ResourceType.DYNAMODB_TABLE)
