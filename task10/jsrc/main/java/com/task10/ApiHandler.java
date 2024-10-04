@@ -23,9 +23,11 @@ import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityPr
 import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.syndicate.deployment.model.environment.ValueTransformer.USER_POOL_NAME_TO_CLIENT_ID;
@@ -62,12 +64,10 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
             return routeRequest(event);
         } catch (JsonParseException e) {
             context.getLogger().log("Error parsing request: " + e.getMessage());
-            return new APIGatewayProxyResponseEvent().withStatusCode(400)
-                    .withBody(String.format("Unable to parse the body: %s", e.getMessage()));
+            return badRequest(String.format("Unable to parse the body: %s", e.getMessage()));
         } catch (Exception e) {
             context.getLogger().log("Error handling request: " + e.getMessage());
-            return new APIGatewayProxyResponseEvent().withStatusCode(500)
-                    .withBody(String.format("Error: %s", e.getMessage()));
+            return genericResponse(500, String.format("Error: %s", e.getMessage()));
         }
     }
 
@@ -122,19 +122,29 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
         }
     }
 
+    private APIGatewayProxyResponseEvent genericResponse(int statusCode, String body) {
+        return new APIGatewayProxyResponseEvent().withStatusCode(statusCode).withBody(body);
+    }
+
     private APIGatewayProxyResponseEvent mappingNotFound(String path) {
-        return new APIGatewayProxyResponseEvent().withStatusCode(404)
-                .withBody(String.format("No mapping found for %s", path));
+        return genericResponse(404, String.format("No mapping found for %s", path));
     }
 
     private APIGatewayProxyResponseEvent unsupportedMethod(String method, String path) {
-        return new APIGatewayProxyResponseEvent().withStatusCode(405)
-                .withBody(String.format("Unsupported method %s for path %s", method, path));
+        return genericResponse(405, String.format("Unsupported method %s for path %s", method, path));
+    }
+
+    private APIGatewayProxyResponseEvent badRequest(String body) {
+        return genericResponse(400, body);
+    }
+
+    private APIGatewayProxyResponseEvent ok(String body) {
+        return genericResponse(200, body);
     }
 
     private APIGatewayProxyResponseEvent processSignUp(SignUp signUp) {
-        if (!Validator.validEmail(signUp.getEmail()) || !Validator.validPassword(signUp.getPassword())) {
-            return new APIGatewayProxyResponseEvent().withStatusCode(400).withBody("Invalid email or password");
+        if (Validator.invalidEmail(signUp.getEmail()) || Validator.invalidPassword(signUp.getPassword())) {
+            return badRequest("Invalid email or password");
         }
         String userPoolId = System.getenv("user_pool_id");
         AdminCreateUserRequest createUserRequest = AdminCreateUserRequest.builder()
@@ -150,12 +160,12 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
                 .permanent(true)
                 .build();
         cognito.adminSetUserPassword(setUserPasswordRequest);
-        return new APIGatewayProxyResponseEvent().withStatusCode(200);
+        return ok(null);
     }
 
     private APIGatewayProxyResponseEvent processSignIn(SignIn signIn) {
-        if (!Validator.validEmail(signIn.getEmail()) || !Validator.validPassword(signIn.getPassword())) {
-            return new APIGatewayProxyResponseEvent().withStatusCode(400).withBody("Invalid email or password");
+        if (Validator.invalidEmail(signIn.getEmail()) || Validator.invalidPassword(signIn.getPassword())) {
+            return badRequest("Invalid email or password");
         }
         String userPoolId = System.getenv("user_pool_id");
         String clientId = System.getenv("client_id");
@@ -168,20 +178,17 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
                 .build();
         AdminInitiateAuthResponse response = cognito.adminInitiateAuth(request);
         // Need to provide an id token instead of advertised access token smh
-        return new APIGatewayProxyResponseEvent().withStatusCode(200)
-                .withBody(gson.toJson(new Token(response.authenticationResult().idToken())));
+        return ok(gson.toJson(new Token(response.authenticationResult().idToken())));
     }
 
     private APIGatewayProxyResponseEvent processGetTables() {
         List<Table> tables = tablesTable.scan().items().stream().collect(Collectors.toList());
-        return new APIGatewayProxyResponseEvent().withStatusCode(200)
-                .withBody(gson.toJson(new Tables(tables)));
+        return ok(gson.toJson(new Tables(tables)));
     }
 
     private APIGatewayProxyResponseEvent processPostTable(Table table) {
         tablesTable.putItem(table);
-        return new APIGatewayProxyResponseEvent().withStatusCode(200)
-                .withBody(gson.toJson(new IdWrapper<>(table.getId())));
+        return ok((gson.toJson(new IdWrapper<>(table.getId()))));
     }
 
     private APIGatewayProxyResponseEvent processGetTable(String tableId) {
@@ -189,28 +196,47 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
             Key tableKey = Key.builder().partitionValue(Integer.valueOf(tableId)).build();
             Table table = tablesTable.getItem(tableKey);
             if (table == null) {
-                return new APIGatewayProxyResponseEvent().withStatusCode(404)
-                        .withBody(String.format("Table with id %s not found", tableId));
+                return genericResponse(404, String.format("Table with id %s not found", tableId));
             }
-            return new APIGatewayProxyResponseEvent().withStatusCode(200)
-                    .withBody(gson.toJson(table));
+            return ok(gson.toJson(table));
         } catch (NumberFormatException e) {
-            return new APIGatewayProxyResponseEvent().withStatusCode(400)
-                    .withBody("Invalid tableId");
+            return badRequest("Invalid table id");
         }
     }
 
     private APIGatewayProxyResponseEvent processGetReservations() {
         List<Reservation> reservations = reservationsTable.scan().items().stream().collect(Collectors.toList());
-        return new APIGatewayProxyResponseEvent().withStatusCode(200)
-                .withBody(gson.toJson(new Reservations(reservations)));
+        return ok(gson.toJson(new Reservations(reservations)));
     }
 
     private APIGatewayProxyResponseEvent processPostReservation(Reservation reservation) {
+        if (Validator.invalidDate(reservation.getDate())) {
+            return badRequest("Invalid date");
+        }
+        if (Validator.invalidTime(reservation.getSlotTimeStart()) ||
+                Validator.invalidTime(reservation.getSlotTimeEnd()) ||
+                reservation.getSlotTimeStart().compareTo(reservation.getSlotTimeEnd()) >= 0) {
+            return badRequest("Invalid (slotStartTime, slotEndTime)");
+        }
+        // The following 2 checks should really be migrated to a DB-level query, but I can't be asked
+        boolean nonExistingTable = tablesTable.scan().items().stream()
+                .noneMatch(existingTable -> existingTable.getNumber() == reservation.getTableNumber());
+        if (nonExistingTable) {
+            return badRequest(String.format("Table with number %d not found", reservation.getTableNumber()));
+        }
+        boolean hasOverlapsWithExistingReservations = reservationsTable.scan().items().stream()
+                .filter(e -> e.getTableNumber() == reservation.getTableNumber())
+                .anyMatch(existing -> Validator.overlappingRanges(
+                        existing.getSlotTimeStart(), existing.getSlotTimeEnd(),
+                        reservation.getSlotTimeStart(), reservation.getSlotTimeEnd(),
+                        // Comparing string values should suffice
+                        Comparator.comparing(Function.identity())));
+        if (hasOverlapsWithExistingReservations) {
+            return badRequest("Overlaps with existing reservation");
+        }
         reservation.setId(UUID.randomUUID().toString());
         reservationsTable.putItem(reservation);
-        return new APIGatewayProxyResponseEvent().withStatusCode(200)
-                .withBody(gson.toJson(new IdWrapper<>(reservation.getId())));
+        return ok(gson.toJson(new IdWrapper<>(reservation.getId())));
     }
 
     @Value
