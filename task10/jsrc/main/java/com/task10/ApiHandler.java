@@ -32,14 +32,14 @@ import static com.syndicate.deployment.model.environment.ValueTransformer.USER_P
 import static com.syndicate.deployment.model.environment.ValueTransformer.USER_POOL_NAME_TO_USER_POOL_ID;
 
 @LambdaHandler(lambdaName = "api_handler", roleName = "api_handler-role")
-@DependsOn(name = "${booking_user_pool}", resourceType = ResourceType.COGNITO_USER_POOL)
+@DependsOn(name = "${booking_userpool}", resourceType = ResourceType.COGNITO_USER_POOL)
 @DependsOn(name = "${tables_table}", resourceType = ResourceType.DYNAMODB_TABLE)
 @DependsOn(name = "${reservations_table}", resourceType = ResourceType.DYNAMODB_TABLE)
 @EnvironmentVariables(value = {
         @EnvironmentVariable(key = "region", value = "${region}"),
-        @EnvironmentVariable(key = "user_pool_id", value = "${booking_user_pool}",
+        @EnvironmentVariable(key = "user_pool_id", value = "${booking_userpool}",
                 valueTransformer = USER_POOL_NAME_TO_USER_POOL_ID),
-        @EnvironmentVariable(key = "client_id", value = "${booking_user_pool}",
+        @EnvironmentVariable(key = "client_id", value = "${booking_userpool}",
                 valueTransformer = USER_POOL_NAME_TO_CLIENT_ID)
 })
 public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
