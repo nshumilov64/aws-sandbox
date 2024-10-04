@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "task11_api",
+    "title": "task10_api",
     "version": "2024-10-04T21:19:11Z"
   },
   "servers": [
