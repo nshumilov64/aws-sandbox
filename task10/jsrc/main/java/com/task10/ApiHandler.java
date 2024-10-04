@@ -57,11 +57,13 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
             .table(System.getenv("reservations_table"), TableSchema.fromBean(Reservation.class));
 
     @Override
-    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context context) {
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent requestEvent, Context context) {
         context.getLogger().log("System Environment: " + gson.toJson(System.getenv()));
-        context.getLogger().log("Request Event: " + gson.toJson(event));
+        context.getLogger().log("Request Event: " + gson.toJson(requestEvent));
         try {
-            return routeRequest(event);
+            APIGatewayProxyResponseEvent responseEvent = routeRequest(requestEvent);
+            context.getLogger().log("Response Event: " + gson.toJson(responseEvent));
+            return responseEvent;
         } catch (JsonParseException e) {
             context.getLogger().log("Error parsing request: " + e.getMessage());
             return badRequest(String.format("Unable to parse the body: %s", e.getMessage()));
@@ -72,7 +74,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
     }
 
     private APIGatewayProxyResponseEvent routeRequest(APIGatewayProxyRequestEvent event) {
-        String[] pathElements = event.getPath().split("/");
+        String[] pathElements = event.getPath().substring(1).split("/");
         String method = event.getHttpMethod();
         switch (pathElements[0]) {
             case "signup":
@@ -178,7 +180,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
                 .build();
         AdminInitiateAuthResponse response = cognito.adminInitiateAuth(request);
         // Need to provide an id token instead of advertised access token smh
-        return ok(gson.toJson(new Token(response.authenticationResult().idToken())));
+        return ok(gson.toJson(new Tokens(response.authenticationResult().idToken())));
     }
 
     private APIGatewayProxyResponseEvent processGetTables() {
@@ -256,7 +258,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
     }
 
     @Value
-    public static class Token {
+    public static class Tokens {
         String accessToken;
     }
 
