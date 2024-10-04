@@ -23,10 +23,7 @@ import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityPr
 import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -128,7 +125,14 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
     }
 
     private APIGatewayProxyResponseEvent genericResponse(int statusCode, String body) {
-        return new APIGatewayProxyResponseEvent().withStatusCode(statusCode).withBody(body);
+        Map<String, String> corsHeaders = new HashMap<>();
+        corsHeaders.put("Access-Control-Allow-Headers",
+                "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token");
+        corsHeaders.put("Access-Control-Allow-Origin", "*");
+        corsHeaders.put("Access-Control-Allow-Methods", "*");
+        corsHeaders.put("Accept-Version", "*");
+        return new APIGatewayProxyResponseEvent().withStatusCode(statusCode).withBody(body)
+                .withHeaders(corsHeaders);
     }
 
     private APIGatewayProxyResponseEvent mappingNotFound(String path) {
