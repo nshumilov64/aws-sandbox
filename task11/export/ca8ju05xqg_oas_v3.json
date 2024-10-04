@@ -17,7 +17,7 @@
   "paths": {
     "/reservations": {
       "get": {
-        "summary": "Get reservations",
+        "summary": "Get Reservations",
         "description": "Retrieves all reservations in the system.",
         "responses": {
           "200": {
@@ -88,7 +88,7 @@
         }
       },
       "post": {
-        "summary": "Create reservation",
+        "summary": "Create Reservation",
         "description": "Creates a new reservation and returns its id.",
         "requestBody": {
           "description": "Reservation to be created",
@@ -212,7 +212,7 @@
     },
     "/tables": {
       "get": {
-        "summary": "Get tables",
+        "summary": "Get Tables",
         "description": "Retrieves all tables in the system.",
         "responses": {
           "200": {
@@ -254,7 +254,7 @@
         }
       },
       "post": {
-        "summary": "Create table",
+        "summary": "Create Table",
         "description": "Creates a new table and returns its id.",
         "requestBody": {
           "description": "The table to be created",
@@ -375,7 +375,7 @@
     },
     "/signin": {
       "post": {
-        "summary": "User login",
+        "summary": "User Login",
         "description": "Logs in the user and returns their id token.",
         "requestBody": {
           "description": "User credentials",
@@ -481,7 +481,7 @@
     },
     "/tables/{tableId}": {
       "get": {
-        "summary": "Get table",
+        "summary": "Get Table",
         "description": "Retrieves a specific table.",
         "parameters": [
           {
@@ -593,7 +593,7 @@
     },
     "/signup": {
       "post": {
-        "summary": "User registration",
+        "summary": "Register User",
         "description": "Registers the user in the system.",
         "requestBody": {
           "description": "User details and credentials",
