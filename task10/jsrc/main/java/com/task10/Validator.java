@@ -7,7 +7,8 @@ import java.util.Comparator;
 import java.util.regex.Pattern;
 
 public class Validator {
-    private static final Pattern PASSWORD_PATTERN = Pattern.compile("^[a-zA-Z0-9$%^*]+$");
+    // Alphanumeric + any of "$%^*-_", 12+ chars. Example: p12345T-048_Gru
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile("^[a-zA-Z0-9$%^*\\-_]+$");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 

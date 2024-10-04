@@ -48,7 +48,7 @@ import static com.syndicate.deployment.model.environment.ValueTransformer.USER_P
 public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private static final Gson gson = new Gson();
     private static final CognitoIdentityProviderClient cognito = CognitoIdentityProviderClient.create();
-    // Dynamo API, don't know those are thread-safe and if it makes sense to reuse them
+    // Dynamo API, don't know if these are thread-safe and if it makes sense to reuse them
     private static final DynamoDbClient dynamo = DynamoDbClient.create();
     private static final DynamoDbEnhancedClient dynamoEnhanced = DynamoDbEnhancedClient.builder()
             .dynamoDbClient(dynamo).build();
