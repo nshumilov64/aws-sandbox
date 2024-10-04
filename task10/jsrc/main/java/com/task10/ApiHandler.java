@@ -169,7 +169,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
     private APIGatewayProxyResponseEvent processSignIn(SignIn signIn) {
         // A temporary crutch to circumvent a bug in verification
-        if (signIn.getEmail().equals("invalid_user@test.com") ||
+        if ("invalid_user@test.com".equals(signIn.getEmail()) ||
                 Validator.invalidEmail(signIn.getEmail()) || Validator.invalidSignUpPassword(signIn.getPassword())) {
             return badRequest("Invalid email or password");
         }
