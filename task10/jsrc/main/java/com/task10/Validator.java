@@ -2,6 +2,7 @@ package com.task10;
 
 import javax.mail.internet.InternetAddress;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.regex.Pattern;
@@ -31,7 +32,7 @@ public class Validator {
     }
 
     public static boolean invalidTime(String time) {
-        return time == null || throwsException(() -> LocalDate.parse(time, TIME_FORMATTER));
+        return time == null || throwsException(() -> LocalTime.parse(time, TIME_FORMATTER));
     }
 
     public static <T> boolean overlappingRanges(T a, T b, T c, T d, Comparator<T> comparator) {
