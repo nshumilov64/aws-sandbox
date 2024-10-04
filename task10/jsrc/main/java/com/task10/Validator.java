@@ -30,8 +30,8 @@ public class Validator {
     }
 
     public static <T> boolean overlappingRanges(T a, T b, T c, T d, Comparator<T> comparator) {
-        return comparator.compare(a, c) > 0 && comparator.compare(a, d) < 0 ||
-                comparator.compare(b, c) > 0 && comparator.compare(b, d) < 0;
+        return comparator.compare(a, c) >= 0 && comparator.compare(a, d) < 0 ||
+                comparator.compare(b, c) > 0 && comparator.compare(b, d) <= 0;
     }
 
     private static boolean throwsException(Action action) {
