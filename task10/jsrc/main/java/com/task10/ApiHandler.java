@@ -186,17 +186,17 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
                 .build();
         AdminInitiateAuthResponse response = cognito.adminInitiateAuth(request);
         // Need to provide an id token instead of advertised access token smh
-        return ok(gson.toJson(new Tokens(response.authenticationResult().idToken())));
+        return ok(gson.toJson(Map.of("accessToken", response.authenticationResult().idToken())));
     }
 
     private APIGatewayProxyResponseEvent processGetTables() {
         List<Table> tables = tablesTable.scan().items().stream().collect(Collectors.toList());
-        return ok(gson.toJson(new Tables(tables)));
+        return ok(gson.toJson(Map.of("tables", tables)));
     }
 
     private APIGatewayProxyResponseEvent processPostTable(Table table) {
         tablesTable.putItem(table);
-        return ok((gson.toJson(new IdWrapper<>(table.getId()))));
+        return ok(gson.toJson(Map.of("id", table.getId())));
     }
 
     private APIGatewayProxyResponseEvent processGetTable(String tableId) {
@@ -214,7 +214,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
     private APIGatewayProxyResponseEvent processGetReservations() {
         List<Reservation> reservations = reservationsTable.scan().items().stream().collect(Collectors.toList());
-        return ok(gson.toJson(new Reservations(reservations)));
+        return ok(gson.toJson(Map.of("reservations", reservations)));
     }
 
     private APIGatewayProxyResponseEvent processPostReservation(Reservation reservation) {
@@ -244,7 +244,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
         }
         reservation.setId(UUID.randomUUID().toString());
         reservationsTable.putItem(reservation);
-        return ok(gson.toJson(new IdWrapper<>(reservation.getId())));
+        return ok(gson.toJson(Map.of("reservationId", reservation.getId())));
     }
 
     @Value
@@ -263,11 +263,6 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
         String password;
     }
 
-    @Value
-    public static class Tokens {
-        String accessToken;
-    }
-
     @Data
     @DynamoDbBean
     public static class Table {
@@ -281,11 +276,6 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
         public int getId() {
             return id;
         }
-    }
-
-    @Value
-    public static class Tables {
-        List<Table> tables;
     }
 
     @Data
@@ -303,15 +293,5 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
         public String getId() {
             return id;
         }
-    }
-
-    @Value
-    public static class Reservations {
-        List<Reservation> reservations;
-    }
-
-    @Value
-    public static class IdWrapper<T> {
-        T id;
     }
 }
