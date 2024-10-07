@@ -23,10 +23,7 @@ import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityPr
 import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,17 +60,16 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent requestEvent, Context context) {
         context.getLogger().log("System Environment: " + gson.toJson(System.getenv()));
         context.getLogger().log("Request Event: " + gson.toJson(requestEvent));
+        APIGatewayProxyResponseEvent responseEvent;
         try {
-            APIGatewayProxyResponseEvent responseEvent = routeRequest(requestEvent);
-            context.getLogger().log("Response Event: " + gson.toJson(responseEvent));
-            return responseEvent;
+            responseEvent = routeRequest(requestEvent);
         } catch (JsonParseException e) {
-            context.getLogger().log("Error parsing request: " + e.getMessage());
-            return badRequest(String.format("Unable to parse the body: %s", e.getMessage()));
+            responseEvent = badRequest(String.format("Unable to parse the request body: %s", e.getMessage()));
         } catch (Exception e) {
-            context.getLogger().log("Error handling request: " + e.getMessage());
-            return genericResponse(500, String.format("Error: %s", e.getMessage()));
+            responseEvent = genericResponse(500, String.format("Error: %s", e.getMessage()));
         }
+        context.getLogger().log("Response Event: " + gson.toJson(responseEvent));
+        return responseEvent;
     }
 
     private APIGatewayProxyResponseEvent routeRequest(APIGatewayProxyRequestEvent event) {
@@ -101,9 +97,8 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
                             case "POST":
                                 return processPostTable(gson.fromJson(event.getBody(), Table.class));
                             default:
-                                unsupportedMethod(event.getHttpMethod(), event.getPath());
+                                return unsupportedMethod(event.getHttpMethod(), event.getPath());
                         }
-                        break;
                     case 2:
                         return method.equals("GET") ? processGetTable(pathElements[1]) :
                                 unsupportedMethod(event.getHttpMethod(), event.getPath());
@@ -171,8 +166,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
     private APIGatewayProxyResponseEvent processSignIn(SignIn signIn) {
         // A temporary crutch to circumvent a bug in verification
-        if ("invalid_user@test.com".equals(signIn.getEmail()) ||
-                Validator.invalidEmail(signIn.getEmail()) || Validator.invalidPassword(signIn.getPassword())) {
+        if (Validator.invalidEmail(signIn.getEmail()) || Validator.invalidPassword(signIn.getPassword())) {
             return badRequest("Invalid email or password");
         }
         String userPoolId = System.getenv("user_pool_id");
@@ -184,9 +178,14 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
                 .clientId(clientId)
                 .authParameters(Map.of("USERNAME", signIn.getEmail(), "PASSWORD", signIn.getPassword()))
                 .build();
-        AdminInitiateAuthResponse response = cognito.adminInitiateAuth(request);
-        // Need to provide an id token instead of advertised access token smh
-        return ok(gson.toJson(Map.of("accessToken", response.authenticationResult().idToken())));
+        try {
+            AdminInitiateAuthResponse response = cognito.adminInitiateAuth(request);
+            // Need to provide an id token instead of advertised access token smh
+            return ok(gson.toJson(Map.of("accessToken", response.authenticationResult().idToken())));
+        } catch (UserNotFoundException e) {
+            // This should probably be expanded and treated as a 401
+            return badRequest(String.format("User %s not found", signIn.getEmail()));
+        }
     }
 
     private APIGatewayProxyResponseEvent processGetTables() {
